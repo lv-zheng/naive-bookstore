@@ -2,6 +2,7 @@
 
 ## How to run
 
+* Use PHP composer to grab the dependencies
 * Use `sql/bookstore.sql` to create schema
 * Modify config.php
 * Edit `public/index.html` to choose your favorite theme
