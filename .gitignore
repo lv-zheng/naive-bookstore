@@ -1,0 +1,5 @@
+composer.log
+vendor/
+
+# config.php contains private data
+public/config.php

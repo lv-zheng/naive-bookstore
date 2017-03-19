@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Books - Naïve Bookstore</title>
+	<!-- Change the following line to switch theme -->
+	<link rel="stylesheet" type="text/css" href="css/ui-dark-hive/easyui.css">
+	<link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/icon.css">
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.6.min.js"></script>
+	<script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
+</head>
+<body>
+	<h2>Books</h2>
+	<p>Click the buttons on datagrid toolbar to do crud actions.</p>
+
+	<table id="dg" title="Books" class="easyui-datagrid" style="width:700px;height:250px"
+			url="/crud/book/r"
+			toolbar="#toolbar" pagination="false"
+			rownumbers="true" fitColumns="true" singleSelect="true">
+		<thead>
+			<tr>
+				<th field="title" width="50">Title</th>
+				<th field="price" width="50">Price</th>
+			</tr>
+		</thead>
+	</table>
+	<div id="toolbar">
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newBook()">New Book</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editBook()">Edit Book</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyBook()">Remove Book</a>
+	</div>
+
+	<div id="dlg" class="easyui-dialog" style="width:400px;height:280px;padding:10px 20px"
+			closed="true" buttons="#dlg-buttons">
+		<div class="ftitle">Book Information</div>
+		<form id="fm" method="post" novalidate>
+			<div class="fitem">
+				<label>Title:</label>
+				<input name="title" class="easyui-textbox" required="true">
+			</div>
+			<div class="fitem">
+				<label>Price:</label>
+				<input name="price" class="easyui-textbox" required="true">
+			</div>
+		</form>
+	</div>
+	<div id="dlg-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveBook()" style="width:90px">Save</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">Cancel</a>
+	</div>
+	<script type="text/javascript">
+		var url;
+		function newBook(){
+			$('#dlg').dialog('open').dialog('setTitle','New Book');
+			$('#fm').form('clear');
+			url = '/crud/book/c';
+		}
+		function editBook(){
+			var row = $('#dg').datagrid('getSelected');
+			if (row){
+				$('#dlg').dialog('open').dialog('setTitle','Edit Book');
+				$('#fm').form('load',row);
+				url = '/crud/book/u/'+row.id;
+			}
+		}
+		function saveBook(){
+			$('#fm').form('submit',{
+				url: url,
+				onSubmit: function(){
+					return $(this).form('validate');
+				},
+				success: function(result){
+					var result = eval('('+result+')');
+					if (result.message){
+						$.messager.show({
+							title: 'Error',
+							msg: result.message
+						});
+					} else {
+						$('#dlg').dialog('close');		// close the dialog
+						$('#dg').datagrid('reload');	// reload the book data
+					}
+				}
+			});
+		}
+		function destroyBook(){
+			var row = $('#dg').datagrid('getSelected');
+			if (row){
+				$.messager.confirm('Confirm','Are you sure you want to destroy this book?',function(r){
+					if (r){
+						$.post('/crud/book/d/' + row.id, function(result){
+							if (result.success){
+								$('#dg').datagrid('reload');	// reload the book data
+							} else {
+								$.messager.show({	// show error message
+									title: 'Error',
+									msg: result.message
+								});
+							}
+						});
+					}
+				});
+			}
+		}
+	</script>
+	<style type="text/css">
+		#fm{
+			margin:0;
+			padding:10px 30px;
+		}
+		.ftitle{
+			font-size:14px;
+			font-weight:bold;
+			padding:5px 0;
+			margin-bottom:10px;
+			border-bottom:1px solid #ccc;
+		}
+		.fitem{
+			margin-bottom:5px;
+		}
+		.fitem label{
+			display:inline-block;
+			width:80px;
+		}
+		.fitem input{
+			width:160px;
+		}
+	</style>
+</body>
+</html>
